@@ -1,0 +1,14 @@
+{
+  "name": "pacing-si-usage-limits",
+  "owner": {
+    "name": "delirious6423"
+  },
+  "description": "Pacing tools for AI coding-assistant plan limits",
+  "plugins": [
+    {
+      "name": "pace-indicator",
+      "source": "./mod/pace-indicator",
+      "description": "Pacing band and /pacing pane for Claude Code"
+    }
+  ]
+}

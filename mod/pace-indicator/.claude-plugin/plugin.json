@@ -1,0 +1,18 @@
+{
+  "name": "pace-indicator",
+  "version": "0.3.0",
+  "description": "Shows the pacing mode and 5-hour and weekly usage as meters in a band above the prompt, with a /pacing details pane.",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "delirious6423"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/delirious6423/pacing-si-usage-limits",
+  "homepage": "https://github.com/delirious6423/pacing-si-usage-limits#desktop-mod",
+  "keywords": [
+    "mod",
+    "usage",
+    "plan-limits",
+    "pacing"
+  ]
+}

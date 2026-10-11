@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0
+
+- `mod/pace-indicator`: a Claude Code mod. A band above the prompt shows the mode and two meters (5-hour and week) with the dev cap and the casual reserve marked. A `details` button and `/pacing` open a pane with the reasoning and the budget; `/pacing` also restores a hidden band. A marketplace file at the repo root installs it. Tests pin its logic to `pace.py` on 11 scenarios and render the band and pane on the terminal and desktop element tables.
+
 ## v0.2.0
 
 - `pace.py status` prints a one-line colored indicator for a status line. It reads Claude Code status-line JSON (`rate_limits`) on stdin, needs no cache file, and never raises. See `snippets/status-line.md`.

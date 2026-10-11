@@ -3,3 +3,5 @@ roadmap.md
 config.local*
 *.local.json
 .DS_Store
+.claude-plugin/types/
+mod/**/.claude-plugin/types/
