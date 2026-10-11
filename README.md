@@ -46,7 +46,7 @@ a colored line such as `GREEN 5h 16/80 wk 3/80 reset 3h16m`. Setup and caveats a
 
 ## Desktop mod
 
-`mod/pace-indicator` is a Claude Code mod. It draws a band above the prompt: the mode in color, then a meter for the 5-hour window and one for the week, and the time to the next 5-hour reset. Each meter has a tick at the dev cap and a tinted casual-use reserve past it, so the 80/20 split is visible. The desktop app draws SVG meters; the terminal draws block meters. A `details` button and `/pacing` open a pane with the reasoning, both windows against their caps, the dev budget and the allowed limits. `×` hides the band, and `/pacing` brings it back. It reads live usage from the session, so it needs no cache file, and it uses the same rules as `pace.py`. A test pins the two together on 11 scenarios.
+`mod/pace-indicator` is a Claude Code mod. It draws a band above the prompt: the mode in color, then a meter for the 5-hour window and one for the week, and the time to the next 5-hour reset. Each meter has a tick at the dev cap and a tinted casual-use reserve past it, so the 80/20 split is visible. The desktop app draws SVG meters; the terminal draws block meters. The mod sets no font: all text uses the host app's own font, and the SVG meters hold no text. A `details` button and `/pacing` open a pane with the reasoning, both windows against their caps, the dev budget and the allowed limits. `×` hides the band, and `/pacing` brings it back. It reads live usage from the session, so it needs no cache file, and it uses the same rules as `pace.py`. A test pins the two together on 11 scenarios.
 
 Install from a terminal session of Claude Code:
 
