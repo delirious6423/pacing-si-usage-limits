@@ -1,12 +1,12 @@
 # Onboarding
 
-This guide takes a new user from zero to a working weekly cadence. Status of each platform is in the Compatibility table in `README.md`.
+This guide takes you from zero to a working weekly cadence, step by step. For what is verified and what is untested, see the Compatibility table in [README.md](../README.md#compatibility).
 
 ## Prerequisites
 
 - An assistant that can run shell commands, or just a terminal.
 - A plan with a 5-hour window and a weekly window. Verified on Claude Code desktop with a Pro plan only.
-- A way to read usage. See the Usage source table in `skill/pace/SKILL.md`.
+- A way to read usage. See the Usage source table in [skill/pace/SKILL.md](../skill/pace/SKILL.md).
 - Python 3.9 or newer.
 
 Check Python. On Windows, use `python --version` or `py -3 --version`.
@@ -33,7 +33,7 @@ Install under another root.
 python3 install.py --home /path/to/dir
 ```
 
-For a harness without a skills folder, choose the folder. `SKILL.md` is then placed next to `pace.py`.
+For a harness without a skills folder, choose the pace folder and add `--no-skill`. The installer puts `SKILL.md` next to `pace.py`.
 
 ```bash
 python3 install.py --no-skill --pace-dir /path/to/pace
@@ -41,19 +41,19 @@ python3 install.py --no-skill --pace-dir /path/to/pace
 
 Other options: `--skill-dir DIR` sets the skill folder. `CLAUDE_HOME` sets the default root.
 
-Then paste `snippets/CLAUDE-policy.md` at the end of your instructions file and replace `<pace-dir>` with the folder the installer printed. File names by harness are in that snippet. If your harness has no skills, copy `skill/pace/SKILL.md` into the pace folder and tell the assistant to read it.
+Then paste the block from [snippets/CLAUDE-policy.md](../snippets/CLAUDE-policy.md) at the end of your instructions file. Replace `<pace-dir>` with the folder the installer printed. That snippet lists the instructions file for each harness. If your harness has no skills, the block tells the assistant to read `<pace-dir>/SKILL.md`.
 
-To keep config and ledger elsewhere, set `PACE_HOME`. Set it for the shell that runs `pace.py`.
+To keep `config.json` and `ledger.md` in another folder, set `PACE_HOME` in the shell that runs `pace.py`. `pace.py`, `roadmap.md` and `queue.md` stay in the pace folder.
 
 ## First /pace
 
 Run this in your assistant.
 
-```
+```text
 /pace
 ```
 
-The assistant reads usage, runs `pace.py mode`, and replies in about six lines: the mode, the budget for this window, the allowed workers, the chosen roadmap item and the next reset.
+The assistant reads usage, runs `pace.py mode`, and replies in at most six lines: the mode, the budget for this window, the allowed workers, the chosen roadmap item and the next reset.
 
 Test the script alone with made-up numbers. The `--now` flag fixes the clock.
 
@@ -77,7 +77,7 @@ Keep the planned total at or below about 70%. Put loose ideas in the Inbox secti
 
 Daily:
 
-1. Start each dev session with `/pace`.
+1. Start each session with `/pace`. Casual sessions stop after a one-line check.
 2. Work the item `/pace` picks.
 3. Run `/pace` again at each phase boundary and before fanning out 3 or more workers.
 4. When an item stops, log its cost (next section).
@@ -106,11 +106,19 @@ python3 ~/.claude/pace/pace.py k
 
 ## Use the queue
 
-When YELLOW or RED stops work, run `/pace queue`. The assistant appends a line to `queue.md` with the item, the estimate and the resume point. In BURN and GREEN, `/pace` pulls from the queue. Delete a line when you start it.
+When the YELLOW or RED mode stops work, run `/pace queue`. The assistant appends a line to `queue.md` with the item, the estimate and the resume point. In BURN and GREEN, `/pace` pulls from the queue. Delete a line when you start it.
 
 ## Adjust 80/20
 
-Edit `config.json` in the pace folder. Change `dev_week_cap` and `dev_5h_cap`. Use 90 for a 90/10 split, or 70 for more casual room. The next `/pace` uses the new values.
+Edit `config.json` in the pace folder (or in `PACE_HOME`, if you set it). Change `dev_week_cap` and `dev_5h_cap`. Use 90 for a 90/10 split, or 70 for more casual room. The next `/pace` uses the new values. The status line uses them too. The Claude Code mod always uses 80/20.
+
+## Optional extras
+
+All three are for Claude Code. Each is optional.
+
+- Session-start reminder: follow [snippets/session-start-hook.md](../snippets/session-start-hook.md).
+- Status line: follow [snippets/status-line.md](../snippets/status-line.md).
+- Band above the prompt and the `/pacing` pane: install the mod as described in [README.md](../README.md#claude-code-mod).
 
 ## Uninstall
 
@@ -120,7 +128,7 @@ Delete the skill folder and the pace folder. Back up `roadmap.md` and `ledger.md
 rm -r ~/.claude/skills/pace ~/.claude/pace
 ```
 
-On Windows, use File Explorer or `rmdir /s` on `%USERPROFILE%\.claude\skills\pace` and `%USERPROFILE%\.claude\pace`. Delete the block between `<!-- pace-policy:start -->` and `<!-- pace-policy:end -->` from your instructions file. Remove the session-start hook if you added it.
+On Windows, use File Explorer or `rmdir /s` on `%USERPROFILE%\.claude\skills\pace` and `%USERPROFILE%\.claude\pace`. Delete the block between `<!-- pace-policy:start -->` and `<!-- pace-policy:end -->` from your instructions file. If you added the session-start hook or the status line, remove them from `settings.json`. If you installed the mod, uninstall the `pace-indicator` plugin, or remove its folder from `CLAUDE_CODE_PLUGIN_DIRS`.
 
 ## Troubleshooting
 
@@ -134,7 +142,7 @@ On Windows, use File Explorer or `rmdir /s` on `%USERPROFILE%\.claude\skills\pac
 
 1. Casual use raises the readings, because usage is account-wide.
 2. Another session may be spending from the same pool.
-3. Labels may differ on your plan. Compare them with the Usage source table in `SKILL.md`, or pass flags instead of `--stdin`.
+3. Labels may differ on your plan. The `--stdin` parser looks for words such as "5-hour", "weekly" and "all models". If yours differ, pass flags instead of `--stdin`.
 4. Run the script with `--json` to see every number.
 
 ```bash

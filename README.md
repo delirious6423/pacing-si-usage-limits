@@ -1,10 +1,17 @@
 # pace
 
-A usage-pacing skill for AI coding assistants. It reads your plan usage, picks a mode with a deterministic Python script, and tells each session how many workers to run and what to work on. The goal is to use your plan fully without hitting the 5-hour or the weekly limit.
+A usage-pacing toolkit for AI coding assistants on plans with a 5-hour limit and a weekly limit. It reads your plan usage and picks a mode with a deterministic Python script. The mode tells each session how many workers to run and what to work on. The goal is to use your plan fully without hitting either limit.
 
-By default, 80% of capacity goes to dev and agent work. 20% stays free for casual use. The reserve is released in the last 12 hours of the week and the last 45 minutes of a 5-hour window, so unused capacity does not expire.
+By default, 80% of capacity goes to dev and agent work (the dev cap). The other 20% is the casual reserve. The reserve is released in the last 12 hours of the week and the last 45 minutes of a 5-hour window, so unused capacity does not expire.
 
-`pace.py` needs only two percentages and two reset times: the 5-hour window and the weekly window. A model-specific weekly window is optional. You can run it by hand, with no assistant.
+`pace.py` needs only two percentages and two reset times: one pair for the 5-hour window and one for the weekly window. A model-specific weekly window is optional. You can run it by hand, with no assistant.
+
+The repository has four parts:
+
+- `pace/pace.py`: the calculator (Python 3.9 or newer, standard library only).
+- `skill/pace/SKILL.md`: the `/pace` skill, the instructions the assistant follows.
+- `snippets/`: paste-ready text for your instructions file, a session-start hook and a status line.
+- `mod/pace-indicator/`: an optional Claude Code mod that shows the mode in a band above the prompt.
 
 ## Compatibility
 
@@ -14,11 +21,14 @@ By default, 80% of capacity goes to dev and agent work. 20% stays free for casua
 | Claude Code desktop app, Pro plan | Verified by the author |
 | Python 3.9 | Verified by the author |
 | `install.py` on macOS | Verified by the author |
+| Mod band in the desktop app's Code tab | An earlier layout was seen drawing. The current layout passes render tests only. |
+| Mod band and pane on a real terminal | Untested. Render tests pass. |
 | Windows | Untested |
 | Linux | Untested |
 | Claude Code CLI `/usage` output format | Untested |
 | `AGENTS.md`-based harnesses | Untested |
 | Window labels on other plans | Untested |
+| SessionStart hook output handling | Untested |
 
 ## Quickstart
 
@@ -32,37 +42,39 @@ Paste `snippets/CLAUDE-policy.md` into your instructions file (`CLAUDE.md`, `AGE
 
 Run the skill in your assistant.
 
-```
+```text
 /pace
 ```
 
-Edit `roadmap.md` in the pace folder and replace the example rows with your own work. See `docs/ONBOARDING.md` for the full walkthrough.
+Edit `roadmap.md` in the pace folder. Replace the example rows with your own work. For the full walkthrough, see [docs/ONBOARDING.md](docs/ONBOARDING.md).
 
 ## Status line
 
-Show the live mode in every Claude Code session. `pace.py status` reads the status-line JSON on stdin and prints
-a colored line such as `GREEN 5h 16/80 wk 3/80 reset 3h16m`. Setup and caveats are in
-[snippets/status-line.md](snippets/status-line.md). Terminal CLI only is documented; the desktop app is untested.
+`pace.py status` prints the mode as one colored line for a Claude Code status line, for example `BURN 5h 16/80 wk 3/80 reset 3h16m`. It reads the status-line JSON on stdin. Setup and caveats are in [snippets/status-line.md](snippets/status-line.md). Claude Code documents status lines for the terminal. Whether the desktop app shows one is untested.
 
-## Desktop mod
+## Claude Code mod
 
-`mod/pace-indicator` is a Claude Code mod. It draws a band above the prompt: the mode in color, then a meter for the 5-hour window and one for the week, and the time to the next 5-hour reset. Each meter has a tick at the dev cap and a tinted casual-use reserve past it, so the 80/20 split is visible. The desktop app draws SVG meters; the terminal draws block meters. The mod sets no font: all text uses the host app's own font, and the SVG meters hold no text. A `details` button and `/pacing` open a pane with the reasoning, both windows against their caps, the dev budget and the allowed limits. `×` hides the band, and `/pacing` brings it back. It reads live usage from the session, so it needs no cache file, and it uses the same rules as `pace.py`. A test pins the two together on 11 scenarios.
+`mod/pace-indicator` is a Claude Code mod. It draws a band above the prompt. The band shows the mode in color, a meter for the 5-hour window, a meter for the week, and the time to the next 5-hour reset. Each meter has a tick at the dev cap and a tinted casual reserve past it, so you can see the 80/20 split. The desktop app draws SVG meters. The terminal draws block meters. The mod sets no font: all text uses the host app's font, and the SVG meters hold no text.
 
-Install from a terminal session of Claude Code:
+The `details` button and the `/pacing` command open a pane. The pane shows the reason for the mode, both windows against their dev caps, the dev budget for this 5-hour window and the allowed limits. The `×` button hides the band. `/pacing` shows it again.
+
+The mod reads live usage from the session, so it needs no cache file. It uses the same rules as `pace.py` with the default values. It does not read `config.json`, and it ignores a model-specific weekly window. A test checks that the mod and `pace.py` agree on 11 scenarios.
+
+Install it from a terminal session of Claude Code:
 
 ```text
 /plugin install pace-indicator --marketplace delirious6423/pacing-si-usage-limits
 ```
 
-Or run it from a clone for every session, CLI and desktop app, by adding the folder to the `env` block of `~/.claude/settings.json`:
+Or load it from a clone in every session, terminal and desktop app. Add the folder to the `env` block of `~/.claude/settings.json`:
 
 ```json
 { "env": { "CLAUDE_CODE_PLUGIN_DIRS": "/path/to/clone/mod/pace-indicator" } }
 ```
 
-Use one of these ways, not both. A folder named there is watched, so saved edits reload in sessions that started after the change. Mods are new, run with your permissions and are not sandboxed: read `mod/pace-indicator/hooks/register.tsx` before you install it.
+Use one way, not both. Claude Code watches a folder named in `CLAUDE_CODE_PLUGIN_DIRS`, so saved edits reload in sessions that start after the change. Mods are new. They run with your permissions and are not sandboxed. Read `mod/pace-indicator/hooks/register.tsx` before you install it.
 
-Status: `claude plugin validate` passes and 8 tests pass, including renders on the terminal and desktop element tables. The band was seen drawing in the Claude desktop app's Code tab (an earlier layout of the band, on the author's machine). The current meter layout is covered by the render tests; terminal drawing and other machines are untested.
+Status: `claude plugin validate` passes, and the 8 tests pass, including render tests on the terminal and desktop element tables. The author saw an earlier layout of the band draw in the desktop app's Code tab. The current layout passes the render tests only. Drawing on a real terminal is untested.
 
 ## Use it without an assistant
 
@@ -78,7 +90,7 @@ Or pipe JSON with `--stdin`.
 echo '{"h5":{"pct":16,"resets_at":"2026-10-11T16:39:59Z"},"week":{"pct":3,"resets_at":"2026-10-13T07:59:59Z"}}' | python3 pace/pace.py mode --stdin --now 2026-10-11T13:24:00Z
 ```
 
-`--stdin` also accepts a Claude Code `get_usage` result. Add an optional `"fable":{"pct":0}` key, or the `--fable` flag, for a model-specific weekly window. Add `--json` for full output. Leave out `--now` to use the current time.
+Both commands print mode BURN. `--stdin` also accepts the result of the Claude Code desktop app's `get_usage` tool. For a model-specific weekly window, add a `"fable":{"pct":0}` key or the `--fable` flag. Add `--json` for full output. Leave out `--now` to use the current time.
 
 ## Modes
 
@@ -86,20 +98,20 @@ echo '{"h5":{"pct":16,"resets_at":"2026-10-11T16:39:59Z"},"week":{"pct":3,"reset
 |---|---|---|---|---|---|
 | BURN | Well under budget, or the reserve is released near a reset | up to 6 | high | yes (heavily) | pull next items |
 | GREEN | On budget | up to 4 | high | yes | only if the roadmap item is done |
-| YELLOW | Slightly ahead of budget, or the 5-hour window is filling | up to 2 | medium | yes (drafts and reviews) | no |
-| RED | At a cap, or far ahead of budget | 0 | low | only work on a separate budget | no; queue it |
+| YELLOW | Slightly ahead of budget, the 5-hour window is filling, or the reading is stale | up to 2 | medium | yes (drafts and reviews) | no |
+| RED | At a dev cap, or far ahead of budget | 0 | low | only work on a separate budget | no; queue it |
 
-"Workers" means subagents, teammates or parallel agents, whatever your harness calls them. "Offload" means another model or tool on a separate budget. It is optional. If you have none, skip it.
+"Workers" means subagents, teammates or parallel agents, whatever your harness calls them. "Offload" means another model or tool on a separate budget. Offload is optional. If you have none, skip it.
 
-YELLOW halves the budget printed for the current window. RED sets it to 0.
+The budget printed for the current 5-hour window is a ceiling. YELLOW halves it. RED sets it to 0.
 
 ## How it works
 
-```
-usage source (see the Usage source table in SKILL.md)
+```text
+usage source (see the table below)
    |  percent used + reset time for each window
    v
-pace.py mode  <-- config.json (caps, release windows, k)
+pace.py mode  <-- config.json (dev caps, release windows, k)
    |  mode, budget for this window, allowed workers and offload
    v
 SKILL.md (/pace) --> reads roadmap.md + queue.md --> picks the next item
@@ -116,13 +128,20 @@ Usage sources:
 | Claude Code CLI | `/usage`; read the numbers and pass flags (untested) |
 | Anything else | read the numbers from your plan's usage page |
 
-`pace.py` compares weekly usage with a linear budget line: the dev cap spread over the week, plus 15 points of slack. The ratio of the two is the weekly pace. A pace above 1.0 gives YELLOW. A pace above 1.3 gives RED. A pace below 0.7 gives BURN. The 5-hour window can force YELLOW or RED on its own.
+`pace.py` compares weekly usage with a linear budget line: the dev cap spread over the week, plus 15 points of slack. The ratio of the two is the weekly pace. The rules, in order:
 
-`k` is the number of weekly points one 5-hour point costs. It converts a 5-hour budget into weekly terms. The default is 0.19. The ledger recalibrates it.
+1. RED if either window is at its dev cap, or the pace is above 1.3.
+2. YELLOW if the pace is above 1.0, or the 5-hour window is within 20 points of its dev cap with more than 1 hour left.
+3. BURN if the reserve is released, or the pace is below 0.7.
+4. GREEN otherwise.
+
+A reset time in the past means the reading is stale. A stale reading caps the mode at YELLOW. So does a model-specific weekly window at or above `fable_week_cap`.
+
+`k` is the number of weekly points that one 5-hour point costs. It converts a 5-hour budget into weekly terms. The default is 0.19. `pace.py k` recalibrates it from the ledger.
 
 ## Configuration
 
-`pace.py` reads `config.json` and writes `ledger.md` in its own folder. Set the `PACE_HOME` environment variable to use another folder for both.
+`pace.py` reads `config.json` and writes `ledger.md` in its own folder. To use another folder for both, set the `PACE_HOME` environment variable.
 
 Edit `config.json` in the pace folder.
 
@@ -132,12 +151,12 @@ Edit `config.json` in the pace folder.
 | `dev_5h_cap` | 80 | % of a 5-hour window that dev work may use |
 | `week_release_hours` | 12 | last N hours of the week: reserve released |
 | `h5_release_minutes` | 45 | last N minutes of a 5-hour window: reserve released |
-| `released_cap` | 95 | cap while the reserve is released |
+| `released_cap` | 95 | dev cap while the reserve is released |
 | `k` | 0.19 | weekly points per 5-hour point |
-| `fable_week_cap` | 80 | % on the model-specific weekly window that caps the mode at YELLOW |
+| `fable_week_cap` | 80 | % of the model-specific weekly window that caps the mode at YELLOW |
 | `pace_slack` | 15 | weekly points allowed ahead of the budget line |
 
-For a 90/10 split, set `dev_week_cap` and `dev_5h_cap` to 90. Invalid values fall back to the defaults.
+For a 90/10 split, set `dev_week_cap` and `dev_5h_cap` to 90. An invalid dev cap, `released_cap`, `fable_week_cap`, `k` or `pace_slack` falls back to its default. The Claude Code mod always uses the defaults.
 
 ## Installer options
 
@@ -148,29 +167,29 @@ For a 90/10 split, set `dev_week_cap` and `dev_5h_cap` to 90. Invalid values fal
 | `--skill-dir DIR` | folder for the skill (default: `<home>/skills/pace`) |
 | `--no-skill` | no skills folder: put `SKILL.md` next to `pace.py` instead |
 
-The installer is safe to re-run. It backs up a changed file with a timestamp suffix before it replaces it. It never replaces `config.json`, `queue.md` or `roadmap.md` once they exist.
+You can run the installer again at any time. Before it replaces a changed file, it backs the file up with a timestamp suffix. It never replaces `config.json`, `queue.md` or `roadmap.md` once they exist. It does not install the Claude Code mod or the status line.
 
-## Limits and honest caveats
+## Limits and caveats
 
-- Reading usage needs a source. Claude Code desktop provides `get_usage`. Elsewhere you read the numbers yourself.
+- Reading usage needs a source. The Claude Code desktop app provides `get_usage`. Elsewhere you read the numbers yourself.
 - Usage is account-wide. Casual use in the web app or on your phone raises the readings. That makes the script conservative.
 - Verified on a Pro plan only. Window labels may differ on other plans. The `--stdin` parser matches labels by keyword (for example "5-hour", "weekly", "all models"). If yours differ, pass flags instead.
 - Readings are integers. Small items cost less than 1 point and cannot be measured one by one.
-- The mode is advice to the assistant. It follows it because the skill and policy say so. Nothing enforces it.
+- The mode is advice to the assistant. The assistant follows it because the skill and the policy block say so. Nothing enforces it.
 - Parallel sessions spend from the same pool. Ledger deltas overlap when two sessions run.
 - `get_usage` reports `not_applicable` for API keys, Bedrock, Vertex and gateways. Pacing does not apply there.
 
 ## FAQ
 
-**Does it block anything?** No. It prints a mode and the assistant obeys it.
+**Does it block anything?** No. It prints a mode, and the assistant follows it.
 
 **Does it work with an API key?** No. Plan windows do not exist there.
 
-**Does it need Claude Code?** No. It needs Python and a way to read your usage. The skill file targets Claude Code. For other harnesses, copy the policy block and `SKILL.md` as described in `snippets/CLAUDE-policy.md`.
+**Does it need Claude Code?** No. It needs Python and a way to read your usage. `SKILL.md` is harness-neutral. Claude Code loads it as a skill. For other harnesses, see `snippets/CLAUDE-policy.md`.
 
 **Do I need another model for offload?** No. Offload is optional.
 
-**Why is my mode YELLOW right after a reset?** The reading may be stale. If a reset time is in the past, the script caps the mode at YELLOW. Read usage again and re-run.
+**Why is my mode YELLOW right after a reset?** The reading may be stale. If a reset time is in the past, the script caps the mode at YELLOW. Read usage again and run the script again.
 
 **Can I use a different split?** Yes. Change `dev_week_cap` and `dev_5h_cap`.
 
@@ -178,4 +197,4 @@ The installer is safe to re-run. It backs up a changed file with a timestamp suf
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [LICENSE](LICENSE).

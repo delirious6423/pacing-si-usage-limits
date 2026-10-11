@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the pace skill. Works on macOS, Linux and Windows. Safe to re-run.
+"""Install the pace skill and pace.py. Works on macOS, Linux and Windows. Safe to re-run.
 
   python3 install.py                      # Claude Code layout under ~/.claude (or $CLAUDE_HOME)
   python3 install.py --home /some/dir     # use a different root

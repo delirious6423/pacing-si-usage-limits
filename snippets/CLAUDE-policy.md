@@ -9,8 +9,9 @@ folder. File names by harness:
 | Codex CLI and other tools that read `AGENTS.md` | `AGENTS.md` (global or per project) |
 | Others | wherever the tool loads standing instructions |
 
-The markers let you find and replace the block later. If your harness has no skills, paste this block and also tell the
-assistant to read `<pace-dir>/SKILL.md` when it needs the procedure (`python3 install.py --no-skill` puts it there).
+The markers let you find and replace the block later. If your harness has no skills, install with
+`python3 install.py --no-skill`. It puts `SKILL.md` in `<pace-dir>`. The block below then tells the assistant to read
+`<pace-dir>/SKILL.md`.
 
 <!-- pace-policy:start -->
 ## Usage pacing (standing)
@@ -23,7 +24,7 @@ roadmap) and 20% casual use (search, chat, hobby). The `pace` skill and `<pace-d
 - Before any non-trivial dev task, at every phase boundary, and before fanning out 3 or more parallel workers: run
   the full pace procedure and obey the mode (BURN, GREEN, YELLOW, RED). The mode caps workers, effort and what to work on.
 - Plan and execute against `<pace-dir>/roadmap.md` (estimates in % of the weekly limit). When a roadmap item stops,
-  follow the `log` procedure in SKILL.md and update its status and actual cost. Work that a RED or YELLOW mode stops goes in `<pace-dir>/queue.md`.
+  follow the `/pace log` procedure and update its status and actual cost. Work that a RED or YELLOW mode stops goes in `<pace-dir>/queue.md`.
 - Pace the work, not only the tokens: scope early in the week, execute mid-week, verify and clean up in the last third.
   Do not start a large item that does not fit the printed dev budget for this 5-hour window; split it or queue it.
 - Never let dev work push the 5-hour window past its dev cap; that room is the casual reserve.

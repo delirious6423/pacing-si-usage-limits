@@ -3,7 +3,8 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Rate } from '../types'
 
-// Same policy as pace.py (defaults in config.json). Keep the two in step: hooks/pace.test.ts pins the results.
+// Same policy as pace.py with its default config.json values. The mod does not read config.json or a model-specific
+// weekly window. Keep the two in step: hooks/pace.test.ts pins the results.
 const CFG = { devWeek: 80, dev5h: 80, weekReleaseH: 12, h5ReleaseMin: 45, released: 95, k: 0.19, slack: 15 }
 
 export type Mode = 'BURN' | 'GREEN' | 'YELLOW' | 'RED'
@@ -25,7 +26,7 @@ const RULES: Record<Mode, string> = {
   BURN: 'workers 6, effort high, offload heavily, full verification, pull the backlog',
   GREEN: 'workers 4, effort high, offload yes, full verification, backlog only when the item is done',
   YELLOW: 'workers 2, effort medium, offload drafts and reviews, one cheap verification round, no backlog',
-  RED: 'workers 0, effort low, offload only work on a separate budget, no verification, hand off and queue',
+  RED: 'workers 0, effort low, offload only work on a separate budget, verification stays pending, hand off and queue',
 }
 
 function win(pct: number, reset: string, lenH: number, now: number) {

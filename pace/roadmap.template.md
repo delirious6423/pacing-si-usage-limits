@@ -26,5 +26,5 @@ The rows below are invented examples. Replace them with your own work.
 
 ## Casual lane (20% reserve, not planned)
 
-Daily search, chat and hobby use. Nothing to schedule. Dev work must never push the 5-hour window past its cap, so this
-lane always has room. `/pace` releases unused reserve near each reset.
+Daily search, chat and hobby use. Nothing to schedule. Dev work must never push the 5-hour window past its dev cap, so
+this lane always has room. `pace.py` releases the unused casual reserve near each reset.

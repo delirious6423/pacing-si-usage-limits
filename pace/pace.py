@@ -5,13 +5,13 @@ Harness-neutral: it only needs two percentages and two reset times. Give them as
 
   pace.py mode --h5 16 --h5-reset 2026-10-11T16:39:59Z --wk 3 --wk-reset 2026-10-13T07:59:59Z [--fable 0]
   <statusline json> | pace.py status        # one-line indicator for a status line (Claude Code `statusLine`)
-  <usage json> | pace.py mode --stdin     # a get_usage result, or {"h5":{"pct":16,"resets_at":"..."},"week":{...}}
+  <usage json> | pace.py mode --stdin     # a usage-tool result (plan.windows, e.g. Claude Code desktop get_usage), or {"h5":{"pct":16,"resets_at":"..."},"week":{...}}
   pace.py log  --item "api pagination" --h5-before 16 --h5-after 30 --wk-before 3 --wk-after 5 [--note ...]
   pace.py k                 # recompute k (weekly pts per 5h pt) from the ledger
 
 Policy (80/20): dev work may use up to DEV_WEEK_CAP % of the week and DEV_5H_CAP % of a 5-hour window.
 The rest is reserved for casual use. Reserves are released near each reset (use it or lose it).
-All numbers come from the account-wide usage card, so casual use inflates the readings (conservative).
+Readings are account-wide, so casual use inflates them (conservative).
 """
 import argparse, datetime as dt, json, os, pathlib, re, sys
 
@@ -24,9 +24,9 @@ DEFAULTS = {
     "dev_5h_cap": 80,         # % of a 5-hour window dev may use
     "week_release_hours": 12, # last N hours of the week: reserve is released
     "h5_release_minutes": 45, # last N minutes of a 5-hour window: reserve is released
-    "released_cap": 95,       # cap while released
+    "released_cap": 95,       # dev cap while the reserve is released
     "k": 0.19,                # weekly pts consumed per 5h pt (calibrated from ledger)
-    "fable_week_cap": 80,
+    "fable_week_cap": 80,     # % of a model-specific weekly window that caps the mode at YELLOW
     "pace_slack": 15,         # weekly pts allowed ahead of the linear budget line (damps early-week noise)
 }
 
@@ -43,6 +43,9 @@ def cfg():
             c[key] = DEFAULTS[key]
     if not isinstance(c["pace_slack"], (int, float)) or c["pace_slack"] <= 0:
         c["pace_slack"] = DEFAULTS["pace_slack"]
+    for key in ("week_release_hours", "h5_release_minutes"):  # hours and minutes before a reset; 0 disables the release
+        if isinstance(c[key], bool) or not isinstance(c[key], (int, float)) or c[key] < 0:
+            c[key] = DEFAULTS[key]
     return c
 
 
@@ -59,9 +62,9 @@ def now_utc():
 def window(pct, reset, length_h, now):
     """Return (pct, left_h, elapsed, stale). A reset already in the past means the reading is stale.
     The real usage is unknown, so keep the reported pct (never invent capacity), assume a fresh
-    window, and let compute() cap the mode at YELLOW until get_usage is re-read."""
+    window, and let compute() cap the mode at YELLOW until usage is re-read."""
     if not 0 <= pct <= 1000:  # also rejects NaN
-        raise SystemExit(f"invalid percentUsed {pct!r}: re-run get_usage")
+        raise SystemExit(f"invalid percentUsed {pct!r}: re-read usage")
     left_h = (parse(reset) - now).total_seconds() / 3600
     stale = left_h <= 0
     if stale:
@@ -75,7 +78,7 @@ def compute(a, c, now=None):
     now = now or now_utc()
     h5, h5_left, e5, st5 = window(a.h5, a.h5_reset, 5, now)
     wk, wk_left, ew, stw = window(a.wk, a.wk_reset, 168, now)
-    reasons = [f"{n} resetsAt is in the past: reading is stale, mode capped at YELLOW; re-run get_usage"
+    reasons = [f"{n} resetsAt is in the past: reading is stale, mode capped at YELLOW; re-read usage"
                for n, st in (("5h", st5), ("weekly", stw)) if st]
     cw, c5 = c["dev_week_cap"], c["dev_5h_cap"]
     released_w = wk_left <= c["week_release_hours"]
@@ -110,7 +113,7 @@ def compute(a, c, now=None):
         mode, why = "GREEN", f"weekly pace {pw:.2f}: on budget"
 
     if (st5 or stw) and mode in ("GREEN", "BURN"):
-        mode, why = "YELLOW", "stale usage reading: re-run get_usage before spending"
+        mode, why = "YELLOW", "stale usage reading: re-read usage before spending"
 
     if fable_hit:
         reasons.append(f"Fable weekly at {a.fable:g}%: switch to Sonnet/Haiku for Claude work")
@@ -123,7 +126,7 @@ def compute(a, c, now=None):
         "BURN": dict(workers=6, effort="high", offload="yes (heavily)", verify="full rounds", backlog="pull next items"),
         "GREEN": dict(workers=4, effort="high", offload="yes", verify="full rounds", backlog="only if roadmap item done"),
         "YELLOW": dict(workers=2, effort="medium", offload="yes (drafts and reviews)", verify="one round, cheap agents", backlog="no"),
-        "RED": dict(workers=0, effort="low", offload="only work on a separate budget", verify="none; write handoff", backlog="no; queue it"),
+        "RED": dict(workers=0, effort="low", offload="only work on a separate budget", verify="hand off; verification stays pending", backlog="no; queue it"),
     }[mode]
     sustain_h = None
     if wk > 0 and ew > 0:
@@ -195,7 +198,8 @@ COLORS = {"BURN": "36", "GREEN": "32", "YELLOW": "33", "RED": "31"}
 
 def cmd_status(raw):
     """One line for a status line. Reads Claude Code status-line JSON (rate_limits.five_hour / seven_day, with
-    used_percentage and resets_at as epoch seconds). Never raises: any problem prints a dim 'pace: n/a'."""
+    used_percentage and resets_at as epoch seconds). Never raises: no weekly window prints a dim 'pace: waiting for
+    usage', any other problem prints a dim 'pace: n/a'."""
     plain = bool(os.environ.get("NO_COLOR"))
     paint = lambda code, t: t if plain else f"\033[{code}m{t}\033[0m"
     try:

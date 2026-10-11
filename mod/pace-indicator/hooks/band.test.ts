@@ -2,11 +2,10 @@ import { expect, mock, test } from 'claude-code/testing'
 
 import './register'
 
-// What the engine would answer beneath the plugin: a clock, the measure echo, nothing else drawn
+// What the engine would answer beneath the plugin: a clock, the measure echo, nothing else drawn.
 const bottom = (on: any) => {
   mock.clock(on)
   on('session.measure', (_$: any, e: any) => ({ changed: e.changed }))
-  on('ui.status', () => ({ value: undefined }))
   // another mod's line already in the band: ours must stack above it
   on('ui.render', { component: 'AbovePrompt' }, ($: any, e: any) => $.ui.resolve(e).Text({ children: 'OTHER-MOD' }))
 }

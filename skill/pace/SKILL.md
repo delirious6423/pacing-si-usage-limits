@@ -12,7 +12,8 @@ All arithmetic is done by `pace.py`; do not compute modes by hand.
 
 - **`<pace-dir>`** is the folder that holds `pace.py`, `config.json`, `roadmap.md`, `queue.md` and `ledger.md`.
   Default: `~/.claude/pace` (on Windows: `%USERPROFILE%\.claude\pace`). If the instructions file that loads this skill
-  names another folder, or the environment variable `PACE_HOME` is set, use that folder instead.
+  names another folder, use that folder instead. If the environment variable `PACE_HOME` is set, `config.json` and
+  `ledger.md` are in that folder; the other files stay in `<pace-dir>`.
 - **Python**: commands below say `python3`. On Windows use `python` or `py -3`.
 - **Workers** means whatever your harness calls subagents, teammates or parallel agents. If it has none, treat every
   "workers" limit as "run steps one at a time".
@@ -36,7 +37,7 @@ If `plan.status` is `not_applicable` (API key, Bedrock, Vertex, gateway), say pa
 1. Read usage (see above). If usage is unavailable or a required window is missing: end this check (not the task).
    Apply YELLOW limits, report the budget and reset as unknown, do not pick roadmap work from an assumed budget,
    and retry at the next phase boundary.
-2. Run `pace.py`. Pass the numbers as flags (quote the timestamps), or pipe a `get_usage` result:
+2. Run `pace.py`. Pass the numbers as flags (quote the timestamps), or pipe a usage-tool result (`plan.windows`):
    ```bash
    python3 "<pace-dir>/pace.py" mode --h5 <pct> --h5-reset "<time>" --wk <pct> --wk-reset "<time>" --fable <pct>
    ```
