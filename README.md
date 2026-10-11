@@ -62,7 +62,7 @@ Or run it from a clone for every session, CLI and desktop app, by adding the fol
 
 Use one of these ways, not both. A folder named there is watched, so saved edits reload in sessions that started after the change. Mods are new, run with your permissions and are not sandboxed: read `mod/pace-indicator/hooks/register.tsx` before you install it.
 
-Status: `claude plugin validate` passes and 8 tests pass, including renders on the terminal and desktop element tables. Whether the band paints in the desktop app's Code tab is not yet confirmed by the author on screen.
+Status: `claude plugin validate` passes and 8 tests pass, including renders on the terminal and desktop element tables. The band was seen drawing in the Claude desktop app's Code tab (an earlier layout of the band, on the author's machine). The current meter layout is covered by the render tests; terminal drawing and other machines are untested.
 
 ## Use it without an assistant
 
