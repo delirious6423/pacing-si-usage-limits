@@ -4,6 +4,7 @@
 Harness-neutral: it only needs two percentages and two reset times. Give them as flags, or pipe JSON.
 
   pace.py mode --h5 16 --h5-reset 2026-10-11T16:39:59Z --wk 3 --wk-reset 2026-10-13T07:59:59Z [--fable 0]
+  <statusline json> | pace.py status        # one-line indicator for a status line (Claude Code `statusLine`)
   <usage json> | pace.py mode --stdin     # a get_usage result, or {"h5":{"pct":16,"resets_at":"..."},"week":{...}}
   pace.py log  --item "api pagination" --h5-before 16 --h5-after 30 --wk-before 3 --wk-after 5 [--note ...]
   pace.py k                 # recompute k (weekly pts per 5h pt) from the ledger
@@ -189,6 +190,36 @@ def read_usage(raw):
     return h5[0], h5[1], wk[0], wk[1], fable
 
 
+COLORS = {"BURN": "36", "GREEN": "32", "YELLOW": "33", "RED": "31"}
+
+
+def cmd_status(raw):
+    """One line for a status line. Reads Claude Code status-line JSON (rate_limits.five_hour / seven_day, with
+    used_percentage and resets_at as epoch seconds). Never raises: any problem prints a dim 'pace: n/a'."""
+    plain = bool(os.environ.get("NO_COLOR"))
+    paint = lambda code, t: t if plain else f"\033[{code}m{t}\033[0m"
+    try:
+        rl = (json.loads(raw) or {}).get("rate_limits") or {}
+        now = now_utc()
+        iso = lambda e: dt.datetime.fromtimestamp(float(e), dt.timezone.utc).isoformat()
+        w, h = rl.get("seven_day"), rl.get("five_hour")
+        if not w:
+            print(paint("2", "pace: waiting for usage"))
+            return
+        # a window is dropped from the input once its reset passes: that means a fresh window at 0%
+        h5, h5r = (float(h["used_percentage"]), iso(h["resets_at"])) if h else (0.0, (now + dt.timedelta(hours=5)).isoformat())
+        a = argparse.Namespace(h5=h5, h5_reset=h5r, wk=float(w["used_percentage"]), wk_reset=iso(w["resets_at"]), fable=None)
+        c = cfg()
+        r = compute(a, c, now)
+        left = r["h5"]["left_h"]
+        t = f"{int(left)}h{int(round((left % 1) * 60)):02d}m"
+        line = (f"{r['mode']} 5h {r['h5']['used']:g}/{r['h5']['dev_cap']} "
+                f"wk {r['week']['used']:g}/{r['week']['dev_cap']} reset {t}")
+        print(paint(COLORS[r["mode"]], line))
+    except Exception:
+        print(paint("2", "pace: n/a"))
+
+
 def cmd_log(a):
     if not LEDGER.exists():
         LEDGER.write_text(encoding="utf-8", data="# Ledger\n\n| date | item | h5 before | h5 after | wk before | wk after | note |\n|---|---|---|---|---|---|---|\n")
@@ -245,6 +276,7 @@ def main(argv=None):
         g.add_argument("--" + n, type=float, required=True)
     g.add_argument("--note", default="")
     s.add_parser("k")
+    s.add_parser("status", help="one-line indicator for a status line; reads status-line JSON on stdin")
     a = p.parse_args(argv)
     if a.cmd == "mode":
         try:
@@ -258,6 +290,8 @@ def main(argv=None):
         except (ValueError, TypeError, KeyError, AttributeError) as e:
             raise SystemExit(f"invalid usage input ({type(e).__name__}: {e}): re-read usage and retry")
         print(json.dumps(r, indent=2) if a.json else fmt(r))
+    elif a.cmd == "status":
+        cmd_status(sys.stdin.buffer.read().decode("utf-8-sig", errors="replace"))
     elif a.cmd == "log":
         cmd_log(a)
     else:

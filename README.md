@@ -38,6 +38,12 @@ Run the skill in your assistant.
 
 Edit `roadmap.md` in the pace folder and replace the example rows with your own work. See `docs/ONBOARDING.md` for the full walkthrough.
 
+## Status line
+
+Show the live mode in every Claude Code session. `pace.py status` reads the status-line JSON on stdin and prints
+a colored line such as `GREEN 5h 16/80 wk 3/80 reset 3h16m`. Setup and caveats are in
+[snippets/status-line.md](snippets/status-line.md). Terminal CLI only is documented; the desktop app is untested.
+
 ## Use it without an assistant
 
 Pass the numbers as flags.

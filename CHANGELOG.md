@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.0
+
+- `pace.py status` prints a one-line colored indicator for a status line. It reads Claude Code status-line JSON (`rate_limits`) on stdin, needs no cache file, and never raises. See `snippets/status-line.md`.
+
 ## v0.1.0
 
 First release. Portable across assistants and operating systems.
