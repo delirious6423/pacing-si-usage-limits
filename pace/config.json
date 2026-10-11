@@ -1,0 +1,10 @@
+{
+  "dev_week_cap": 80,
+  "dev_5h_cap": 80,
+  "week_release_hours": 12,
+  "h5_release_minutes": 45,
+  "released_cap": 95,
+  "k": 0.19,
+  "fable_week_cap": 80,
+  "pace_slack": 15
+}

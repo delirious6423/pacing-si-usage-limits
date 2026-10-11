@@ -1,0 +1,5 @@
+ledger.md
+roadmap.md
+config.local*
+*.local.json
+.DS_Store
