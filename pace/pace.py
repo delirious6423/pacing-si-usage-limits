@@ -101,7 +101,7 @@ def compute(a, c, now=None):
         mode, why = "RED", f"weekly at {wk:g}% (dev cap {cw}%)"
     elif pw > 1.3:
         mode, why = "RED", f"weekly pace {pw:.2f} is over 1.3x the dev budget line"
-    elif pw > 1.0 or (h5 >= c5 - 20 and h5_left > 1.0 and h5 > 100 * e5):  # only when ahead of the time line
+    elif pw > 1.0 or (h5 >= c5 - 20 and h5_left > 1.0 and h5 > 100 * e5):  # 5h rule: only when ahead of the time line (used % above elapsed %)
         mode, why = "YELLOW", (
             f"weekly pace {pw:.2f} above the budget line" if pw > 1.0
             else f"5h window at {h5:g}% with {h5_left:.1f}h left: space out work")

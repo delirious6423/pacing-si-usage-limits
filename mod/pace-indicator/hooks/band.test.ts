@@ -41,7 +41,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 }
 
 test('no reading, no band', async ($: any, on: any) => {
-    bottom(on)
+  bottom(on)
   const band = await $.ui.mount({
     plugin: 'pace-indicator',
     surface: 'desktop',

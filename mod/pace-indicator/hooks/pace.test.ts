@@ -17,6 +17,7 @@ const CASES: [number, string, number, string, string, number, number, number, st
   [10, "2026-10-11T13:50:00Z", 50, "2026-10-14T00:00:00Z", "BURN", 95, 80, 85.0, "reserve released near reset: spend it"],
   [30, "2026-10-11T16:00:00Z", 65, "2026-10-14T00:00:00Z", "GREEN", 80, 80, 50.0, "weekly pace 0.97: on budget"],
   [90, "2026-10-11T16:00:00Z", 10, "2026-10-14T00:00:00Z", "RED", 80, 80, 0.0, "5h window at 90% (dev cap 80%)"],
+  [62, "2026-10-11T14:50:00Z", 26, "2026-10-14T00:00:00Z", "BURN", 80, 80, 18.0, "weekly pace 0.39: well under budget, pull the backlog"],
 ]
 
 test('matches pace.py: mode, caps, budget and reason', () => {

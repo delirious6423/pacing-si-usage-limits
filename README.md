@@ -1,4 +1,4 @@
-# pace
+# pacing-usage-limits
 
 A usage-pacing toolkit for AI coding assistants on plans with a 5-hour limit and a weekly limit. It reads your plan usage and picks a mode with a deterministic Python script. The mode tells each session how many workers to run and what to work on. The goal is to use your plan fully without hitting either limit.
 
@@ -98,7 +98,7 @@ Both commands print mode BURN. `--stdin` also accepts the result of the Claude C
 |---|---|---|---|---|---|
 | BURN | Well under budget, or the reserve is released near a reset | up to 6 | high | yes (heavily) | pull next items |
 | GREEN | On budget | up to 4 | high | yes | only if the roadmap item is done |
-| YELLOW | Slightly ahead of budget, the 5-hour window is filling, or the reading is stale | up to 2 | medium | yes (drafts and reviews) | no |
+| YELLOW | Slightly ahead of budget, the 5-hour window is filling ahead of the time line, the reading is stale, or a model-specific weekly window is at its cap | up to 2 | medium | yes (drafts and reviews) | no |
 | RED | At a dev cap, or far ahead of budget | 0 | low | only work on a separate budget | no; queue it |
 
 "Workers" means subagents, teammates or parallel agents, whatever your harness calls them. "Offload" means another model or tool on a separate budget. Offload is optional. If you have none, skip it.
@@ -156,7 +156,7 @@ Edit `config.json` in the pace folder.
 | `fable_week_cap` | 80 | % of the model-specific weekly window that caps the mode at YELLOW |
 | `pace_slack` | 15 | weekly points allowed ahead of the budget line |
 
-For a 90/10 split, set `dev_week_cap` and `dev_5h_cap` to 90. An invalid dev cap, `released_cap`, `fable_week_cap`, `k` or `pace_slack` falls back to its default. The Claude Code mod always uses the defaults.
+For a 90/10 split, set `dev_week_cap` and `dev_5h_cap` to 90. An invalid value falls back to its default. Set `week_release_hours` or `h5_release_minutes` to 0 to turn off that release. The Claude Code mod always uses the defaults.
 
 ## Installer options
 

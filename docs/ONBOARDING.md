@@ -5,7 +5,7 @@ This guide takes you from zero to a working weekly cadence, step by step. For wh
 ## Prerequisites
 
 - An assistant that can run shell commands, or just a terminal.
-- A plan with a 5-hour window and a weekly window. Verified on Claude Code desktop with a Pro plan only.
+- A plan with a 5-hour window and a weekly window. Verified on the Claude Code desktop app with a Pro plan only.
 - A way to read usage. See the Usage source table in [skill/pace/SKILL.md](../skill/pace/SKILL.md).
 - Python 3.9 or newer.
 

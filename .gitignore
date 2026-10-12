@@ -5,3 +5,6 @@ config.local*
 .DS_Store
 .claude-plugin/types/
 mod/**/.claude-plugin/types/
+__pycache__/
+node_modules/
+*.bak-*

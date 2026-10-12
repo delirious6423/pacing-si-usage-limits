@@ -103,6 +103,6 @@ Append deferred work to `queue.md` (format in that file) when YELLOW or RED stop
 ## Rules
 
 - Never skip a RED stop because the task is nearly done; finish the current unit only if it fits in the remaining
-  headroom (a few % of the 5h window), otherwise hand off.
+  headroom (a few % of the 5-hour window), otherwise hand off.
 - Never spend the casual reserve on dev work except when `/pace` says the reserve is released.
 - If asked for a one-off exception ("ignore pacing"), follow the user's request for that task only.

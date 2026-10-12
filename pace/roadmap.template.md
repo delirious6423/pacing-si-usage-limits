@@ -24,7 +24,7 @@ The rows below are invented examples. Replace them with your own work.
 
 - (add one line per idea; give it an id and an estimate when it is promoted to the table)
 
-## Casual lane (20% reserve, not planned)
+## Casual lane (20% casual reserve, not planned)
 
 Daily search, chat and hobby use. Nothing to schedule. Dev work must never push the 5-hour window past its dev cap, so
 this lane always has room. `pace.py` releases the unused casual reserve near each reset.

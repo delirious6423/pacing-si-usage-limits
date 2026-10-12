@@ -56,6 +56,7 @@ export function pace(rate: Rate, now: number): Snap | null {
   else if (w.pct >= capW) [mode, why] = ['RED', `weekly at ${w.pct}% (dev cap ${capW}%)`]
   else if (pw > 1.3) [mode, why] = ['RED', `weekly pace ${pw.toFixed(2)} is over 1.3x the dev budget line`]
   else if (pw > 1.0) [mode, why] = ['YELLOW', `weekly pace ${pw.toFixed(2)} above the budget line`]
+  // the 5-hour rule fires only when the window is ahead of the time line (used % above elapsed %)
   else if (h.pct >= cap5 - 20 && h.left > 1.0 && h.pct > 100 * h.elapsed) [mode, why] = ['YELLOW', `5h window at ${h.pct}% with ${h.left.toFixed(1)}h left: space out work`]
   else if (relW || rel5) [mode, why] = ['BURN', 'reserve released near reset: spend it']
   else if (pw < 0.7) [mode, why] = ['BURN', `weekly pace ${pw.toFixed(2)}: well under budget, pull the backlog`]
@@ -177,7 +178,7 @@ export const register: Register = on => {
         <Text> </Text>
         {meter('5-hour', snap.h5, snap.cap5, snap.left5h)}
         {meter('Week', snap.wk, snap.capW, snap.leftWkH)}
-        <Text dimColor>The tinted end of each bar is the casual-use reserve.</Text>
+        <Text dimColor>The tinted end of each bar is the casual reserve.</Text>
         <Text> </Text>
         <Text>
           Dev budget this 5-hour window: {snap.budget5.toFixed(1)} points <Text dimColor>(about {(snap.budget5 * CFG.k).toFixed(1)}% of the week)</Text>
