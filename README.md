@@ -197,4 +197,4 @@ You can run the installer again at any time. Before it replaces a changed file, 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE).
