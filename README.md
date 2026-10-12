@@ -63,7 +63,7 @@ The mod reads live usage from the session, so it needs no cache file. It uses th
 Install it from a terminal session of Claude Code:
 
 ```text
-/plugin install pace-indicator --marketplace delirious6423/pacing-si-usage-limits
+/plugin install pace-indicator --marketplace delirious6423/pacing-usage-limits
 ```
 
 Or load it from a clone in every session, terminal and desktop app. Add the folder to the `env` block of `~/.claude/settings.json`:
