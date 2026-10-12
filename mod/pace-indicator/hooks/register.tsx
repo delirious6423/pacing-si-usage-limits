@@ -56,7 +56,7 @@ export function pace(rate: Rate, now: number): Snap | null {
   else if (w.pct >= capW) [mode, why] = ['RED', `weekly at ${w.pct}% (dev cap ${capW}%)`]
   else if (pw > 1.3) [mode, why] = ['RED', `weekly pace ${pw.toFixed(2)} is over 1.3x the dev budget line`]
   else if (pw > 1.0) [mode, why] = ['YELLOW', `weekly pace ${pw.toFixed(2)} above the budget line`]
-  else if (h.pct >= cap5 - 20 && h.left > 1.0) [mode, why] = ['YELLOW', `5h window at ${h.pct}% with ${h.left.toFixed(1)}h left: space out work`]
+  else if (h.pct >= cap5 - 20 && h.left > 1.0 && h.pct > 100 * h.elapsed) [mode, why] = ['YELLOW', `5h window at ${h.pct}% with ${h.left.toFixed(1)}h left: space out work`]
   else if (relW || rel5) [mode, why] = ['BURN', 'reserve released near reset: spend it']
   else if (pw < 0.7) [mode, why] = ['BURN', `weekly pace ${pw.toFixed(2)}: well under budget, pull the backlog`]
   else [mode, why] = ['GREEN', `weekly pace ${pw.toFixed(2)}: on budget`]

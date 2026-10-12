@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix: the 5-hour YELLOW rule now fires only when the window is ahead of the time line. Before, 62% used with 1.5h left gave YELLOW and left capacity to expire.
+
 ## v0.3.0
 
 - `mod/pace-indicator`: a Claude Code mod. A band above the prompt shows the mode and two meters (5-hour and week), with the dev cap and the casual reserve marked. The `details` button and `/pacing` open a pane with the reason and the budget. `/pacing` also shows a hidden band again. A marketplace file at the repository root installs it.

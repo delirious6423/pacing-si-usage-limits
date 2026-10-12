@@ -131,7 +131,7 @@ Usage sources:
 `pace.py` compares weekly usage with a linear budget line: the dev cap spread over the week, plus 15 points of slack. The ratio of the two is the weekly pace. The rules, in order:
 
 1. RED if either window is at its dev cap, or the pace is above 1.3.
-2. YELLOW if the pace is above 1.0, or the 5-hour window is within 20 points of its dev cap with more than 1 hour left.
+2. YELLOW if the pace is above 1.0, or the 5-hour window is within 20 points of its dev cap, has more than 1 hour left, and is ahead of the time line (used % above elapsed time %). A window that trails the time line does not trigger YELLOW, because unspent capacity expires at the reset.
 3. BURN if the reserve is released, or the pace is below 0.7.
 4. GREEN otherwise.
 
